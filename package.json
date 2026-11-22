@@ -1,13 +1,15 @@
 {
   "name": "luna-2035-prospector",
   "version": "1.0.0",
-  "description": "2D Newtonian space simulation game for the browser — trade, mine, explore, combat, scavenge.",
+  "description": "2D Newtonian space simulation game for the browser \u2014 trade, mine, explore, combat, scavenge.",
   "private": true,
   "scripts": {
     "start": "python3 -m http.server 8080",
-    "test": "node tools/harness.js index.html 45000 \"$(cat tools/scenario-deep.js)\""
+    "test": "node --test tools/engine.test.mjs",
+    "test:game": "node tools/harness.cjs index.html 45000 \"$(cat tools/scenario-deep.js)\""
   },
   "devDependencies": {
     "jsdom": "^31.0.1"
-  }
+  },
+  "type": "module"
 }

@@ -87,3 +87,60 @@ lift, shift signing, shuttle, mining, beacon deposit, tug purchase, Newtonian
 burn, EVA, clamp gates, ore sale, journal, save/load, narrative, death/recovery,
 plus corsair seeding, cannon damage, the kill→salvage→collect cycle — 40+
 assertions, no browser required.
+
+## LUNA 2036 // NEW ENGINE (in progress)
+
+A ground-up engine rehaul, built **inside this repo** on the same Newtonian core.
+The classic 2035 game stays at `index.html`; the new engine and its playable
+skeleton live at **`engine.html`**. Plain ES modules, no build step, no deps.
+
+```sh
+npm run start   # serve, then open http://localhost:8080/engine.html
+npm test        # 11 engine tests (orbit, modules, destruction, cargo, save, director)
+npm run test:game  # legacy 2035 jsdom gameplay scenario (40 assertions)
+```
+
+### What exists today (engine skeleton)
+
+- **Modules as first-class objects** — every ship/station/hulk is a graph of
+  module instances (cockpit, reactor, thruster, fuel tank, cargo bay, radiator…).
+  Each module has mass, HP and a world-space collision circle (`src/engine/modules.js`).
+- **Total destruction** — damage is applied per-module; dead modules become
+  persistent **wreck entities** (nothing vanishes, momentum is conserved exactly).
+  When the module graph disconnects, the parent **splits into real breakup
+  entities** with mass-weighted momentum. Volatile modules (reactor, fuel tank)
+  detonate AoE on destruction; killing a critical module destroys the entity and
+  spills its cargo (`src/engine/entity.js`, `src/engine/world.js`).
+- **Physical cargo** — items occupy real grid cells (`CargoGrid`); a bay holds
+  exactly its cells; a destroyed bay **spills its contents as loose, drifting
+  items** in space (`src/engine/cargo.js`).
+- **Newtonian flight** — inverse-square gravity, semi-implicit Euler integration,
+  gravity-bent cannon bolts (`src/engine/orbit.js`, `src/engine/world.js`).
+- **Procedural ships** — seeded generator builds module layouts from hull-class
+  recipes (`tug`, `freighter`, `liner`, `derelict`) — every vessel is unique but
+  reproducible (`src/engine/modules.js`).
+- **Save round-trip** — entities, module graphs, cargo grids and loose items
+  serialize to `luna2036.engine.v2` (`src/engine/save.js`).
+- **Offline Director skeleton** — a deterministic drama-management storyteller
+  (tension model, beat cooldowns) — NOT an LLM; lives in `src/engine/director.js`.
+- **Playable demo** — `engine.html`: fly a procedural tug in Luna orbit, orbit
+  two derelicts, blow them apart, collect the spilled salvage.
+
+### Known limits / not built yet (next pillars)
+
+- Interiors (walkable station/ship/cave rooms, airlocks, interactables)
+- EVA ΔV economics near the surface (jetpack-to-orbit exploit fix)
+- Interior/exterior transitions; NPC/crew inside interiors
+- Director wired to game events (currently passive narration hints only)
+- The 2035 renderer screen-flicker issue (unaddressed — render pipeline audit pending)
+- Breakup child entities keep the parent's angular velocity (linear momentum is
+  conserved exactly; angular momentum is approximated)
+- Legacy v1 saves are not migrated (module graph did not exist)
+
+### Layout
+
+```
+src/engine/   math.js orbit.js modules.js cargo.js entity.js world.js save.js director.js
+src/demo.js   engine.html demo driver
+tools/        engine.test.mjs (new) · harness.cjs + scenario-deep.js (2035 regression)
+```
