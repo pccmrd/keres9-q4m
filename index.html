@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LUNA 2035 // PROSPECTOR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<body>
+<canvas id="cv"></canvas>
+<div id="grain"></div><div id="scan"></div><div id="vig"></div>
+
+<div id="hud">
+  <div class="hudbox" id="logo">LUNA <em>2035</em><small>PROSPECTOR · CIS-LUNAR CLAIM WORK</small></div>
+  <div class="hudbox" id="hudObj"><span class="micro">OBJ</span><span id="objText">—</span></div>
+  <div class="hudbox"><span id="hudCredits">₡ 0</span><span id="hudMode">FOOT</span><span id="hudAlt">ALT <b>0</b> m</span></div>
+  <button class="hudbtn" id="btnStory">STORY ▸ OFF</button>
+  <button class="hudbtn" id="btnJournal">JOURNAL</button>
+  <button class="hudbtn" id="btnChart">CHART</button>
+  <button class="hudbtn on" id="btnSound">SND ON</button>
+  <button class="hudbtn" id="btnCam">CAM 1×</button>
+  <button class="hudbtn" id="btnPause">▐▐ ESC</button>
+</div>
+
+<div id="strip">
+  <div id="stripHead"><span id="stripTitle">SURFACE CORRIDOR · HAB → YARD</span><b id="stripDist">—</b></div>
+  <div id="stripTrack"><div id="stripYou"></div></div>
+</div>
+
+<div id="flightbar">
+  <div class="hudbox">
+    <div class="fval"><span class="micro">D · TGT</span><b id="fD">—</b></div>
+    <div class="fval"><span class="micro">ΔV</span><b id="fDV" class="amb">0</b></div>
+    <div class="fval"><span class="micro">SPD</span><b id="fORB">0</b></div>
+    <div class="fval"><span class="micro">HULL</span><b id="fHull">100</b></div>
+    <div class="fval"><span class="micro">THREAT</span><b id="fThreat">0</b></div>
+  </div>
+  <div class="hudbox"><span id="fTgt">TGT ▸ <b>—</b></span></div>
+  <div class="hudbox" id="verbs">A/D WALK</div>
+  <div class="hudbox" id="legend"><span class="cy">▲</span> YOU · <span>●</span> CREW · <span class="am">▪</span> ROBOT · <span class="gn">◎</span> DROP</div>
+</div>
+
+<div id="ctxHint" class="hidden">F — ACTION</div>
+<div id="actionbar">
+  <button class="abtn" id="btnF" disabled><span id="btnFLabel">—</span><small>F</small></button>
+  <button class="abtn" data-act="match"><span>MATCH ΔV</span><small>X</small></button>
+  <button class="abtn" data-act="brake"><span>BRAKE</span><small>Z</small></button>
+  <button class="abtn" data-act="tgt"><span>TGT</span><small>T</small></button>
+  <button class="abtn" data-act="gear"><span>GEAR</span><small>G</small></button>
+  <button class="abtn" data-act="boots"><span>MAG BOOTS</span><small>B</small></button>
+  <button class="abtn" data-act="ping"><span>PING</span><small>R</small></button>
+  <button class="abtn" data-act="scan"><span>ALT SCAN</span><small>C</small></button>
+  <button class="abtn" data-act="mine"><span>MINE</span><small>M</small></button>
+  <button class="abtn" data-act="fire"><span>FIRE</span><small>SPACE</small></button>
+</div>
+
+<div id="clampPanel" class="sheet hidden">
+  <div class="shead"><h2>CLAMP ENVELOPE</h2><div class="rule"></div></div>
+  <div class="inst">
+    <div class="gate"><span class="micro">SPD <b id="gSpdV">—</b></span><div class="gbar" id="gSpdB"><i></i></div></div>
+    <div class="gate"><span class="micro">ANG <b id="gAngV">—</b></span><div class="gbar" id="gAngB"><i></i></div></div>
+    <div class="gate"><span class="micro">LAT <b id="gLatV">—</b></span><div class="gbar" id="gLatB"><i></i></div></div>
+    <div class="gate"><span class="micro">ROT <b id="gRotV">—</b></span><div class="gbar" id="gRotB"><i></i></div></div>
+    <div id="clampHint">APPROACH A BERTH</div>
+  </div>
+</div>
+
+<div id="tunerPanel" class="sheet hidden">
+  <div class="shead"><h2>CATALOG ARRAY</h2><div class="rule"></div><button class="xbtn" id="btnTuneClose">✕</button></div>
+  <div class="inst">
+    <div class="micro" style="text-align:center">TUNE &amp; TRACK · <span id="tTgtName">—</span></div>
+    <div id="tRead">110.0 <small>kHz</small></div>
+    <input type="range" id="tFreq" min="80" max="140" step="0.1" value="110">
+    <canvas id="tScope" width="240" height="64"></canvas>
+    <div class="trow"><span class="micro">SIG</span><div id="tSigWrap"><div id="tSig"></div></div></div>
+    <div class="trow"><span class="micro">LOCK</span><div id="tLockWrap"><div id="tLock"></div></div></div>
+    <div class="trow"><button class="btn" id="btnSweep" style="flex:1;font-size:10px;padding:6px">SWEEP BAND</button></div>
+    <div class="micro" style="margin-top:6px;font-size:8px">the catalog is broken — every mass up here is unknown until you resolve it</div>
+  </div>
+</div>
+
+<div id="shiftPanel" class="sheet hidden">
+  <div class="shead"><h2>CREW SHIFT</h2><div class="rule"></div></div>
+  <div class="inst">
+    <div class="micro">PILE AT DROP ◎</div>
+    <div><span id="sPile">0</span><span class="micro"> / <span id="sQuota">6</span> CHUNKS</span></div>
+    <div class="micro" style="margin-top:6px">PUNCTUALITY WINDOW</div>
+    <div id="sTimer">05:00</div>
+    <div id="sHint">CUT ROCK · CARRY · PILE</div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<div id="dlg" class="sheet hidden">
+  <div id="dlgHead">
+    <canvas id="dlgPortrait" width="52" height="52"></canvas>
+    <div><div id="dlgName">—</div><div id="dlgRole">—</div></div>
+    <div style="flex:1"></div><button class="xbtn" id="btnDlgClose">✕</button>
+  </div>
+  <div id="dlgText"></div>
+  <div id="dlgChoices"></div>
+</div>
+
+<div id="narrative" class="hidden">
+  <div class="bar"></div>
+  <div id="narBox">
+    <div id="narText"></div>
+    <div id="narBtns"><button class="btn ghost" id="btnTakeOver">TAKE OVER</button><button class="btn ghost" id="btnSkip">SKIP</button></div>
+  </div>
+</div>
+
+<div id="ticker"><div id="tickerTag">CIS-LUNAR WIRE</div><div id="tickerWrap"><div id="tickerTrack"></div></div></div>
+
+<div class="stick" id="stickL"><span class="micro">WALK / RCS</span><div class="nub"></div></div>
+<div class="stick" id="stickR"><span class="micro">AIM / SPIN</span><div class="nub"></div></div>
+<div id="thrRail"><span class="micro">THR</span><div id="thrKnob"></div></div>
+
+<div class="modal" id="mTitle">
+  <div class="sheet" id="titleSheet"><div class="mbody">
+    <div id="titleWord">LUNA 2035</div>
+    <div id="titleSub">Prospector · Cis-Lunar Claim Work</div>
+    <div id="titleIntro">
+      <p>Three years of automated tugs dragged rocks in from the belt and the fringes. Then the catalog ate its own checksums, and now nobody is certain what is already in orbit — including the comets, whose sealed interiors read warm and will not say why.</p>
+      <p>You are <b class="cy">Player</b>, forty-one, ex-process engineer, living in company housing on the regolith because Helion voided your contract and kept your deposit. You walk to the cable lift. You sign on as EVA crew. You cut a rock nobody has named and pile the loot at the drop point until the shuttle comes back.</p>
+      <p>Three powers want this Moon: <b class="rd">Taoyuan</b> wants to build it, <b class="bl">Armstrong</b> wants to govern it, <b class="am">Helion</b> wants to own it. Tomorrow there is a comet with a door in it — and what you do with the key decides which of them gets the century.</p>
+      <p class="micro" style="color:var(--cyan)">ON FOOT: <kbd>A</kbd><kbd>D</kbd> WALK · <kbd>SHIFT</kbd> BOUND · <kbd>W</kbd> JUMP (HOLD TO EXTEND, <kbd>A</kbd><kbd>D</kbd> STEER IN AIR) · <kbd>F</kbd> ACTION</p>
+    </div>
+    <div id="titleBtns">
+      <button class="btn big hidden" id="btnContinue">CONTINUE</button>
+      <button class="btn big" id="btnStart">START SHIFT</button>
+      <button class="btn big amber" id="btnWatch">ONE WATCH · HIS STORY</button>
+      <button class="btn ghost" id="btnTManual">MANUAL</button>
+      <button class="btn ghost" id="btnTSound">SOUND: ON</button>
+    </div>
+    <div id="titleFoot">LICENCE 7-C · LUNAR SURFACE AUTHORITY · EVERY NAME ABOARD HAS WORK, A PRICE, OR A SECRET — THERE ARE NO TOURISTS ON THIS MOON</div>
+  </div></div>
+</div>
+
+<div class="modal hidden" id="mPause">
+  <div class="sheet" style="width:min(420px,94vw)">
+    <div class="shead"><h2>SHIFT PAUSED</h2><div class="rule"></div><button class="xbtn" id="btnPauseX">✕</button></div>
+    <div class="mbody"><div class="pauseList">
+      <button class="btn" id="btnResume">RESUME <small>ESC</small></button>
+      <button class="btn ghost" id="pStory">HIS STORY · COMPUTER PILOT: OFF</button>
+      <button class="btn ghost" id="btnPJournal">JOURNAL <small>J</small></button>
+      <button class="btn ghost" id="btnPManual">MANUAL</button>
+      <button class="btn ghost" id="pSound">SOUND: ON</button>
+      <button class="btn ghost" id="btnPLogs">LOGS · COPY DIAGNOSTICS <small>L</small></button>
+      <button class="btn amber" id="btnRecover">EMERGENCY RECOVERY <small>400₡ · KEEP CARGO</small></button>
+      <button class="btn red" id="btnAbandon">ABANDON · NEW WORLD</button>
+      <button class="btn ghost" id="btnExitTitle">EXIT TO TITLE</button>
+    </div></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mJournal">
+  <div class="sheet wide">
+    <div class="shead"><h2>JOURNAL · PLAYER</h2><div class="rule"></div><button class="xbtn" id="btnJournalX">✕</button></div>
+    <div class="tabs" id="jTabs">
+      <button class="tab on" data-jt="mission">MISSION</button>
+      <button class="tab" data-jt="factions">FACTIONS</button>
+      <button class="tab" data-jt="projects">PROJECTS</button>
+      <button class="tab" data-jt="record">RECORD</button>
+    </div>
+    <div class="mbody" id="jBody"></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mManual">
+  <div class="sheet wide">
+    <div class="shead"><h2>PROSPECTOR MANUAL</h2><div class="rule"></div><button class="xbtn" id="btnManualX">✕</button></div>
+    <div class="mbody" id="manBody"></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mLogs">
+  <div class="sheet wide">
+    <div class="shead"><h2>DIAGNOSTICS</h2><div class="rule"></div><button class="xbtn" id="btnLogsX">✕</button></div>
+    <div class="mbody"><div id="logBody"></div></div>
+    <div class="mfoot"><button class="btn ghost" id="btnRefresh">REFRESH</button><button class="btn" id="btnCopy">COPY REPORT</button></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mStation">
+  <div class="sheet wide">
+    <div class="shead"><h2 id="stName">STATION</h2><div class="rule"></div><button class="btn ghost" id="btnUndock" style="font-size:10px;padding:5px 12px">UNDOCK</button><button class="xbtn" id="btnStationX">✕</button></div>
+    <div class="tabs" id="stTabs">
+      <button class="tab on" data-st="intake">INTAKE</button>
+      <button class="tab" data-st="yard">YARD</button>
+      <button class="tab" data-st="jobs">JOBS</button>
+      <button class="tab" data-st="crew">CREW</button>
+    </div>
+    <div class="mbody" id="stBody"></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mChart">
+  <div class="sheet wide">
+    <div class="shead"><h2>CIS-LUNAR CHART</h2><div class="rule"></div><button class="xbtn" id="btnChartX">✕</button></div>
+    <div class="mbody">
+      <canvas id="chartCv"></canvas>
+      <div id="chartLegend">tap: waypoint · <span style="color:var(--dim)">grey: uncatalogued</span> · <span class="cy">cyan: resolved</span> · <span class="rd">red CN</span> · <span class="bl">blue US</span> · <span class="am">amber HELION</span> · <span class="mg">magenta: warm</span></div>
+      <div id="wpBar"><span id="wpLabel">no waypoint pending</span><button class="btn ghost hidden" id="btnWpNo">CANCEL</button><button class="btn hidden" id="btnWpOk">CONFIRM</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mDeath">
+  <div class="sheet" style="width:min(460px,94vw)"><div class="mbody">
+    <div class="bigwarn">SIGNAL LOST</div>
+    <p class="centertext">Your transponder went quiet. Lunar Mutual covers one recovery. The rock keeps what you were carrying.</p>
+    <p class="centertext am" id="deathCost">ACCEPT RECOVERY · −15% CREDITS</p>
+  </div><div class="mfoot" style="justify-content:center"><button class="btn big red" id="btnDeathOk">ACCEPT RECOVERY</button></div></div>
+</div>
+
+<div class="modal hidden" id="mClaim">
+  <div class="sheet" style="width:min(500px,94vw)"><div class="mbody">
+    <div class="bigclaim">CLAIM RIGHTS GRANTED</div>
+    <p class="centertext">You own a surface-rated hull and you bought your own claim. Nobody assigns your shift any more.</p>
+    <p class="centertext mg">And there is still a comet up there with a door in it.</p>
+  </div><div class="mfoot" style="justify-content:center"><button class="btn big green" id="btnClaimOk">KEEP WORKING</button></div></div>
+</div>
+
+<div class="modal hidden" id="mFoundry">
+  <div class="sheet wide">
+    <div class="shead"><h2 class="mg">THE FOUNDRY · KEY ACCEPTED</h2><div class="rule"></div></div>
+    <div class="mbody">
+      <p style="font-size:12px;color:#f2d9ec;margin-bottom:12px;border-left:2px solid var(--magenta);padding-left:12px">
+      The heart of Vesper is a machine that eats regolith and prints anything: hulls, habitats, reactors, minds. Meridian Foundry seeded three of them before the claims were drawn, then died and lost the keys. Whoever holds this one holds the Moon's industrial century. The console asks a single question: <b>WHO HOLDS THE KEY?</b></p>
+      <div id="fOpts"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mEnding">
+  <div class="sheet wide">
+    <div class="mbody">
+      <canvas id="endSigil" width="74" height="74"></canvas>
+      <div id="endTitle">—</div>
+      <div id="endKicker">—</div>
+      <div id="endBody"></div>
+      <div class="statgrid" id="endStats"></div>
+    </div>
+    <div class="mfoot"><button class="btn ghost" id="btnNewWorld">NEW WORLD</button><button class="btn big" id="btnKeep">KEEP WORKING</button></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="mConfirm">
+  <div class="sheet" style="width:min(420px,94vw)">
+    <div class="shead"><h2>CONFIRM</h2><div class="rule"></div></div>
+    <div class="mbody"><p id="cfText" style="font-size:12px;color:var(--dim)">—</p></div>
+    <div class="mfoot"><button class="btn ghost" id="btnCfNo">CANCEL</button><button class="btn red" id="btnCfYes">CONFIRM</button></div>
+  </div>
+</div>
+
+<!-- GAME MODULES — load order matters: core → world → entities → systems → ui → loop -->
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/state.js"></script>
+<script src="js/world.js"></script>
+<script src="js/traffic.js"></script>
+<script src="js/player.js"></script>
+<script src="js/systems.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/story.js"></script>
+<script src="js/dialogue.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/render.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/save.js"></script>
+<script src="js/loop.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>
