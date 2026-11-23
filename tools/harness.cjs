@@ -240,7 +240,7 @@ async function main() {
   if (warnings.length) console.log('warnings(suppressed-not-implemented):', warnings.length);
 
   const unique = [...new Set(errors)];
-  fs.writeFileSync('/tmp/pwtest/last-errors.json', JSON.stringify({ errors: unique, warnings: warnings.slice(0, 50) }, null, 2));
+  try { fs.writeFileSync(require('path').join(__dirname, 'last-errors.json'), JSON.stringify({ errors: unique, warnings: warnings.slice(0, 50) }, null, 2)); } catch (e) { /* best effort diagnostics */ }
   win.close();
   process.exit(unique.length ? 1 : 0);
 }
